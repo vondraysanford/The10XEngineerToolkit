@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+.vite/
+out/
+
+# Test and coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Secrets and local config — never commit these
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db

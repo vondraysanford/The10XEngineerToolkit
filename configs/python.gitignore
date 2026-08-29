@@ -1,0 +1,30 @@
+# Bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Build and packaging
+build/
+dist/
+*.egg-info/
+
+# Tools and notebooks
+.ipynb_checkpoints/
+mlruns/
+.dvc/cache/
+
+# Secrets and local config — never commit these
+.env
+.env.*
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,64 @@
+# Fails the build when a private term appears anywhere in the repo.
+# Put the terms in a repository secret named PRIVATE_TERMS, one term per line.
+# The secret keeps the term list out of the public repo, and GitHub masks
+# each line of the secret in the logs. The job prints file paths only.
+#
+# Use it for employer-internal system names, client names, and personal data
+# that must never reach a public repo.
+#
+# Fail behavior:
+# - If the secret is not set, the job fails. A scan that silently does not
+#   run is worse than no scan.
+# - On a pull request from a fork, secrets are not available. The job prints
+#   a visible warning and passes. The push after the merge runs the full scan.
+#
+# The scan checks file contents and file names. A private term inside a file
+# name leaks the same way that a term inside a file does.
+
+name: Privacy check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan for private terms
+        env:
+          PRIVATE_TERMS: ${{ secrets.PRIVATE_TERMS }}
+          IS_FORK_PR: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          if [ -z "$PRIVATE_TERMS" ]; then
+            if [ "$IS_FORK_PR" = "true" ]; then
+              echo "::warning::PRIVATE_TERMS is not available to fork PRs. The scan runs again after the merge."
+              exit 0
+            fi
+            echo "::error::The PRIVATE_TERMS secret is not set, so the privacy scan cannot run. Set the secret before you rely on this check."
+            exit 1
+          fi
+          FOUND=0
+          while IFS= read -r term; do
+            [ -z "$term" ] && continue
+            # -l prints file names only. Never print the matched line:
+            # the log is public.
+            MATCHES=$(grep -rliF --exclude-dir=.git -- "$term" . || true)
+            if [ -n "$MATCHES" ]; then
+              echo "::error::A private term appears inside these files:"
+              echo "$MATCHES"
+              FOUND=1
+            fi
+            NAME_MATCHES=$(find . -path ./.git -prune -o -print | grep -iF -- "$term" || true)
+            if [ -n "$NAME_MATCHES" ]; then
+              echo "::error::A private term appears in these file or directory names:"
+              echo "$NAME_MATCHES"
+              FOUND=1
+            fi
+          done <<< "$PRIVATE_TERMS"
+          exit $FOUND

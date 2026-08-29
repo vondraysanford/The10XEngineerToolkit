@@ -1,0 +1,13 @@
+{
+  "name": "10x-engineer-toolkit",
+  "owner": {
+    "name": "Vondray Sanford"
+  },
+  "plugins": [
+    {
+      "name": "10x-toolkit",
+      "source": ".",
+      "description": "Engineering skills and one agent for agentic development: plans before code, verification loops, context files, reviews, and work artifacts."
+    }
+  ]
+}

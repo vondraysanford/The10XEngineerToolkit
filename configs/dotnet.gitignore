@@ -1,0 +1,26 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# Test and coverage
+TestResults/
+coverage/
+*.trx
+
+# Secrets and local config — never commit these
+.env
+.env.*
+appsettings.*.local.json
+*.pfx
+*.publishsettings
+
+# OS
+.DS_Store
+Thumbs.db

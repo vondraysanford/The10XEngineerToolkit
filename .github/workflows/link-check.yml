@@ -1,0 +1,28 @@
+name: Link check
+
+on:
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lychee:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check all Markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Accept 403/429: some official sites block CI user agents or rate-limit.
+          args: >-
+            --no-progress
+            --accept 200..=204,403,429
+            --timeout 20
+            --max-retries 2
+            "**/*.md"
+          fail: true
